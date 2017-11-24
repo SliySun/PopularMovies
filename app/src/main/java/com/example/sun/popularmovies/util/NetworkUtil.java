@@ -4,11 +4,17 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.util.Log;
+
 import com.example.sun.popularmovies.config.Constant;
 import com.example.sun.popularmovies.model.JsonModel;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -67,6 +73,7 @@ public class NetworkUtil {
 
     public static String getResponseFromHttp(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setConnectTimeout(6000);
         /*
             try {
                 InputStream in = urlConnection.getInputStream();
@@ -109,5 +116,13 @@ public class NetworkUtil {
             }
         }
         return false;
+    }
+
+    public static JsonModel parseJson(String response) {
+        Gson gson = new Gson();
+        Type type = new TypeToken<JsonModel>(){}.getType();
+        JsonModel model= gson.fromJson(response, type);
+        Log.d("model",model.toString());
+        return model;
     }
 }

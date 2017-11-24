@@ -1,12 +1,9 @@
 package com.example.sun.popularmovies.activity;
 
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,37 +13,38 @@ import android.widget.Toast;
 
 import com.example.sun.popularmovies.R;
 import com.example.sun.popularmovies.adapter.MovieAdapter;
+import com.example.sun.popularmovies.app.BaseActivity;
 import com.example.sun.popularmovies.config.Constant;
 import com.example.sun.popularmovies.model.JsonModel;
-import com.example.sun.popularmovies.util.NetworkUtil;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.example.sun.popularmovies.task.AsyncTaskListener;
+import com.example.sun.popularmovies.task.MovieTask;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.net.URL;
+import butterknife.BindView;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler{
 
-    private RecyclerView mRecyclerView;
-    private ProgressBar mProgressBar;
-    private TextView mTv_error;
+public class MainActivity extends BaseActivity implements MovieAdapter.MovieAdapterOnClickHandler{
+
+    @BindView(R.id.recyclerView_movies_list) RecyclerView mRecyclerView;
+    @BindView(R.id.progressBar_indicator) ProgressBar mProgressBar;
+    @BindView(R.id.textView_error) TextView mTv_error;
     private MovieAdapter mAdapter;
 
     private boolean isPopular = true;
-    private boolean isLodding;
+    public static boolean isLoading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        init();
 
     }
 
-    private void init() {
-        initView();
+    @Override
+    protected int getLayoutRes() {
+        return R.layout.activity_main;
+    }
+
+    @Override
+    protected void initData(Bundle savedInstanceState) {
         initData(isPopular);
     }
 
@@ -57,13 +55,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }else {
             path = Constant.TOP_RATED_MOVIES_URL;
         }
-        new MovieTask().execute(path);
+        new MovieTask(this, new MovieTaskListener()).execute(path);
     }
 
-    private void initView() {
-        mRecyclerView = findViewById(R.id.recyclerView_movies_list);
-        mProgressBar = findViewById(R.id.progressBar_indicator);
-        mTv_error = findViewById(R.id.textView_error);
+    @Override
+    protected void initView() {
         initRecyclerView();
     }
 
@@ -81,57 +77,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         startActivity(new Intent(MainActivity.this,DetailActivity.class).putExtra("MovieModel",model));
     }
 
-
-    class MovieTask extends AsyncTask<String,Void,JsonModel>{
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            showLoading();
-        }
-
-        @Override
-        protected JsonModel doInBackground(String... urls) {
-            Log.d("onPost","a");
-            if (!NetworkUtil.isNetworkConnected(MainActivity.this)){
-                return null;
-            }else {
-                isLodding = true;
-                if (urls != null) {
-                    URL url = NetworkUtil.buildUrl(urls[0]);
-                    String response;
-                    try {
-                        response = NetworkUtil.getResponseFromHttp(url);
-                        Log.d(MainActivity.class.getSimpleName(), response);
-                        return parseJson(response);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                return null;
-            }
-        }
-
-         @Override
-         protected void onPostExecute(JsonModel movieModel) {
-             isLodding = false;
-            if (movieModel!=null){
-                showData();
-                mAdapter.setMoviesData(movieModel.results);
-            }else {
-                showError();
-            }
-         }
-
-
-    }
-
     private void showError() {
         mTv_error.setVisibility(View.VISIBLE);
         mProgressBar.setVisibility(View.INVISIBLE);
         mRecyclerView.setVisibility(View.INVISIBLE);
     }
-
 
     private void showData() {
         mProgressBar.setVisibility(View.INVISIBLE);
@@ -145,13 +95,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mTv_error.setVisibility(View.INVISIBLE);
     }
 
-    private JsonModel parseJson(String response) {
-        Gson gson = new Gson();
-        Type type = new TypeToken<JsonModel>(){}.getType();
-        JsonModel model= gson.fromJson(response, type);
-        Log.d("model",model.toString());
-        return model;
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -163,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_list_type:
-                if (isLodding){
+                if (isLoading){
                     Toast.makeText(this,R.string.loading,Toast.LENGTH_SHORT).show();
                     return true;
                 }
@@ -177,5 +120,24 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    class MovieTaskListener implements AsyncTaskListener<JsonModel> {
+
+        @Override
+        public void onTaskPre() {
+            showLoading();
+        }
+
+        @Override
+        public void onTaskComplete(JsonModel result) {
+            isLoading = false;
+            if (result!=null){
+                showData();
+                mAdapter.setMoviesData(result.results);
+            }else {
+                showError();
+            }
+        }
     }
 }
