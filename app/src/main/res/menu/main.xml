@@ -2,9 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/action_list_type"
+    <item android:id="@+id/action_list_type_pop"
         android:orderInCategory="1"
-        android:title="@string/movie_rated"
+        android:title="@string/movie_popular"
         app:showAsAction="never"
         />
+    <item
+        android:id="@+id/action_list_type_rate"
+        android:orderInCategory="2"
+        android:title="@string/movie_rated"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_list_type_favor"
+        android:orderInCategory="3"
+        android:title="@string/movie_favor"
+        app:showAsAction="never"/>
 </menu>

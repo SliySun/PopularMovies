@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.example.sun.popularmovies.R;
 import com.example.sun.popularmovies.app.BaseActivity;
+import com.example.sun.popularmovies.config.Constant;
 import com.example.sun.popularmovies.model.JsonModel;
 import com.example.sun.popularmovies.util.NetworkUtil;
 import com.squareup.picasso.Picasso;
@@ -17,15 +18,15 @@ import butterknife.BindView;
 
 public class DetailActivity extends BaseActivity {
 
-    private JsonModel.MovieModel mMovieModel;
+    /*
+    *   http://api.themoviedb.org/3/movie/181808?append_to_response=trailers,reviews&api_key=46c0ae11201c1760cd483c97c9433a93
+    * */
 
-    @BindView(R.id.textView_movie_name) TextView tv_title;
-    @BindView(R.id.ratingBar_vote_stars) RatingBar ratingBar_star;
-    @BindView(R.id.textView_vote_num) TextView tv_vote;
-    @BindView(R.id.imageView_movie_detail_poster) ImageView iv_poster;
-    @BindView(R.id.textView_movie_language) TextView tv_lang;
-    @BindView(R.id.textView_movie_date) TextView tv_date;
-    @BindView(R.id.textView_movie_overview) TextView tv_overView;
+    public JsonModel.MovieModel getmMovieModel() {
+        return mMovieModel;
+    }
+
+    private JsonModel.MovieModel mMovieModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +36,12 @@ public class DetailActivity extends BaseActivity {
 
     @Override
     protected void handleIntent(Intent intent) {
-//        mMovieModel = (JsonModel.MovieModel) intent.getSerializableExtra("MovieModel");
         mMovieModel = intent.getParcelableExtra("MovieModel");
+
+        long id = mMovieModel.id;
+        String urlFormat = "http://api.themoviedb.org/3/movie/%s?append_to_response=trailers,reviews&api_key=%s";
+        String url = String.format(urlFormat, id, Constant.API_KEY);
+
     }
 
     @Override
@@ -46,21 +51,6 @@ public class DetailActivity extends BaseActivity {
 
     @Override
     protected void initData(Bundle savedInstanceState) {
-        initData();
-    }
-
-    private void initData() {
-        tv_title.setText(mMovieModel.title);
-        Picasso.with(DetailActivity.this)
-                .load(NetworkUtil.buildPosterUrl(mMovieModel).toString())
-                .placeholder(R.mipmap.ic_launcher_round)
-                .into(iv_poster);
-
-        ratingBar_star.setRating(mMovieModel.vote_average/10*5);
-        tv_vote.setText(String.valueOf(mMovieModel.vote_average));
-        tv_lang.setText(mMovieModel.original_language);
-        tv_date.setText(mMovieModel.release_date);
-        tv_overView.setText(mMovieModel.overview);
 
     }
 

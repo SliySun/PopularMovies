@@ -6,4 +6,8 @@
     <string name="language">lang:</string>
     <string name="release_data">release date:</string>
     <string name="error_msg">当前网络不可用</string>
+    <string name="movie_favor">按收藏排序</string>
+    <string name="trailers_title">Trailers</string>
+    <string name="reviews_title">Reviews</string>
+    <string name="sort_order_key">sort_order</string>
 </resources>

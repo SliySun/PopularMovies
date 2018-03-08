@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.sun.popularmovies.activity.MainActivity;
+import com.example.sun.popularmovies.fragment.MainFragment;
 import com.example.sun.popularmovies.model.JsonModel;
 import com.example.sun.popularmovies.util.NetworkUtil;
 
@@ -38,7 +39,7 @@ public class MovieTask extends AsyncTask<String,Void,JsonModel> {
         if (!NetworkUtil.isNetworkConnected(mContext)){
             return null;
         }else {
-            MainActivity.isLoading = true;
+            MainFragment.isLoading = true;
             if (strings != null) {
                 URL url = NetworkUtil.buildUrl(strings[0]);
                 String response;

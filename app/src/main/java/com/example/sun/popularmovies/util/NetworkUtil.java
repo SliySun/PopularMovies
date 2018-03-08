@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.example.sun.popularmovies.config.Constant;
+import com.example.sun.popularmovies.model.JsonDetailModel;
 import com.example.sun.popularmovies.model.JsonModel;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -29,6 +30,7 @@ public class NetworkUtil {
     /**
      *
      * @return url
+     * http://api.themoviedb.org/3/movie/popular?api_key=46c0ae11201c1760cd483c97c9433a93
      */
     public static URL buildUrl(String type){
         Uri uri = Uri.parse(Constant.MOVIES_BASE_URL)
@@ -54,10 +56,43 @@ public class NetworkUtil {
         return url;
     }
 
+    public static URL buildDetailUrl(long id){
+        Uri uri = Uri.parse(Constant.MOVIES_BASE_URL)
+                .buildUpon()
+                .appendPath("movie")
+                .appendPath(String.valueOf(id))
+                .appendQueryParameter("append_to_response","trailers%2reviews")
+                .appendQueryParameter("api_key",Constant.API_KEY)
+                .build();
+        String urlFormat = "http://api.themoviedb.org/3/movie/%s?append_to_response=trailers,reviews&api_key=%s";
+        String stringUrl = String.format(urlFormat, id, Constant.API_KEY);
+
+        URL url = null;
+        try {
+            url = new URL(stringUrl);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
     /**
      * @return url
      */
     public static URL buildPosterUrl(JsonModel.MovieModel model){
+        Uri uri = Uri.parse(Constant.POSTER_BASE_URL+Constant.POSTER_SIZE_W185)
+                .buildUpon()
+                .appendEncodedPath(model.poster_path)
+                .build();
+        URL url = null;
+        try {
+            url = new URL(uri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+    public static URL buildPosterUrl(JsonDetailModel model){
         Uri uri = Uri.parse(Constant.POSTER_BASE_URL+Constant.POSTER_SIZE_W185)
                 .buildUpon()
                 .appendEncodedPath(model.poster_path)
@@ -124,5 +159,22 @@ public class NetworkUtil {
         JsonModel model= gson.fromJson(response, type);
         Log.d("model",model.toString());
         return model;
+    }
+
+    public static JsonDetailModel parseJson1(String response){
+        Gson gson = new Gson();
+        Type type = new TypeToken<JsonDetailModel>(){}.getType();
+        JsonDetailModel model = gson.fromJson(response,type);
+        Log.e("detailModel",model.reviews.results.size()+"");
+        return model;
+    }
+
+    public static Uri buildYoutubeUri(String v) {
+        return Uri.parse(Constant.YOUTUBE_URL)
+                .buildUpon()
+                .appendEncodedPath(Constant.YOUTUBE_PATH)
+                .appendQueryParameter("v",v)
+                .build();
+
     }
 }

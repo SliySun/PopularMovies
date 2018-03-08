@@ -3,7 +3,7 @@
     package="com.example.sun.popularmovies">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -12,21 +12,31 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.MainActivity"
+        <activity
+            android:name=".activity.MainActivity"
             android:launchMode="singleTop"
-            >
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.DetailActivity"
+        <activity
+            android:name=".activity.DetailActivity"
             android:parentActivityName=".activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activity.MainActivity"/>
+                android:value=".activity.MainActivity" />
         </activity>
+
+        <provider
+            android:name=".provider.FavorMovieContentProvider"
+            android:authorities="com.example.sun.popularmovies.favor_movie"
+            android:enabled="true"
+            android:exported="true">
+
+        </provider>
     </application>
 
 </manifest>
